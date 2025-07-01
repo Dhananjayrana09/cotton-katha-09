@@ -52,7 +52,7 @@ const VerifiedPayments = () => {
         ...(filters.date_to && { date_to: filters.date_to })
       }
 
-      const response = await api.get('/payments/verified', { params })
+      const response = await api.get('/payment/verified', { params })
       setPayments(response.data.data.payments)
       setPagination(response.data.data.pagination)
       

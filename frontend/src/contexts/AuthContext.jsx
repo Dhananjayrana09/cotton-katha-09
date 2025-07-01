@@ -6,6 +6,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { authService } from '../services/authService'
 import toast from 'react-hot-toast'
+import Cookies from 'js-cookie'
 
 const AuthContext = createContext({})
 
@@ -25,22 +26,20 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const initializeAuth = async () => {
       try {
-        const token = localStorage.getItem(import.meta.env.VITE_TOKEN_STORAGE_KEY || 'cotton_trading_token')
-        
+        const token = Cookies.get(import.meta.env.VITE_TOKEN_STORAGE_KEY || 'cotton_trading_token')
         if (token) {
           // Verify token validity
           const userData = await authService.getProfile()
-          setUser(userData.data.user)
+          setUser(userData.data.data.user)
         }
       } catch (error) {
         console.error('Auth initialization error:', error)
         // Clear invalid token
-        localStorage.removeItem(import.meta.env.VITE_TOKEN_STORAGE_KEY || 'cotton_trading_token')
+        Cookies.remove(import.meta.env.VITE_TOKEN_STORAGE_KEY || 'cotton_trading_token')
       } finally {
         setLoading(false)
       }
     }
-
     initializeAuth()
   }, [])
 
@@ -52,10 +51,8 @@ export const AuthProvider = ({ children }) => {
       console.log("login response", response);
       
       if (response.data.data.token) {
-        localStorage.setItem(
-          import.meta.env.VITE_TOKEN_STORAGE_KEY || 'cotton_trading_token',
-          response.data.data.token
-        )
+        const tokenKey = import.meta.env.VITE_TOKEN_STORAGE_KEY || 'cotton_trading_token'
+        Cookies.set(tokenKey, response.data.data.token, { expires: 7 }) // 7 days expiry
         setUser(response.data.data.user)
         toast.success('Login successful!')
         return { success: true }
@@ -78,10 +75,8 @@ export const AuthProvider = ({ children }) => {
       const response = await authService.register(userData)
       
       if (response.data.data.token) {
-        localStorage.setItem(
-          import.meta.env.VITE_TOKEN_STORAGE_KEY || 'cotton_trading_token',
-          response.data.token
-        )
+        const tokenKey = import.meta.env.VITE_TOKEN_STORAGE_KEY || 'cotton_trading_token'
+        Cookies.set(tokenKey, response.data.data.token, { expires: 7 })
         setUser(response.data.data.user)
         toast.success('Registration successful!')
         return { success: true }
@@ -104,7 +99,8 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.error('Logout error:', error)
     } finally {
-      localStorage.removeItem(import.meta.env.VITE_TOKEN_STORAGE_KEY || 'cotton_trading_token')
+      const tokenKey = import.meta.env.VITE_TOKEN_STORAGE_KEY || 'cotton_trading_token'
+      Cookies.remove(tokenKey)
       setUser(null)
       toast.success('Logged out successfully')
     }

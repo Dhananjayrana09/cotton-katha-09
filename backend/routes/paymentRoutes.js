@@ -337,6 +337,10 @@ router.get('/verified',
     const limit = parseInt(req.query.limit) || 10;
     const offset = (page - 1) * limit;
 
+    console.log("page", page);
+    console.log("limit", limit);
+    console.log("offset", offset);
+
     let query = supabase
       .from('payments')
       .select(`

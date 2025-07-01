@@ -5,10 +5,11 @@
 
 import axios from 'axios'
 import toast from 'react-hot-toast'
+import Cookies from 'js-cookie'
 
 // Create axios instance with base configuration
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:5050/api',
+  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001/api',
   timeout: import.meta.env.VITE_API_TIMEOUT || 30000,
   headers: {
     'Content-Type': 'application/json',
@@ -18,7 +19,7 @@ const api = axios.create({
 // Request interceptor to add auth token
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem(
+    const token = Cookies.get(
       import.meta.env.VITE_TOKEN_STORAGE_KEY || 'cotton_trading_token'
     )
     
@@ -44,7 +45,7 @@ api.interceptors.response.use(
     // Handle different error cases
     if (response?.status === 401) {
       // Unauthorized - clear token and redirect to login
-      localStorage.removeItem(
+      Cookies.remove(
         import.meta.env.VITE_TOKEN_STORAGE_KEY || 'cotton_trading_token'
       )
       window.location.href = '/login'
