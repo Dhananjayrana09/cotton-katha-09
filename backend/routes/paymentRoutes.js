@@ -270,63 +270,7 @@ router.get('/pending',
 );
 
 /**
- * @route   GET /api/payment/:id
- * @desc    Get payment details by ID
- * @access  Private
- */
-router.get('/:id', 
-  authenticateToken,
-  validateParams(paramSchema),
-  asyncHandler(async (req, res) => {
-    const { id } = req.params;
-
-    const { data: payment, error } = await supabase
-      .from('payments')
-      .select(`
-        *,
-        procurement_dump:procurement_id (
-          *,
-          allocation:allocation_id (
-            indent_number,
-            branch_information:branch_id (
-              branch_name,
-              branch_code,
-              zone
-            )
-          )
-        ),
-        created_user:created_by (
-          first_name,
-          last_name,
-          email
-        ),
-        verified_user:verified_by (
-          first_name,
-          last_name,
-          email
-        )
-      `)
-      .eq('id', id)
-      .single();
-
-    if (error || !payment) {
-      return res.status(404).json({
-        success: false,
-        message: 'Payment not found'
-      });
-    }
-
-    res.json({
-      success: true,
-      data: {
-        payment
-      }
-    });
-  })
-);
-
-/**
- * @route   GET /api/payments/verified
+ * @route   GET /api/payment/verified
  * @desc    Get all verified payments
  * @access  Private
  */
@@ -388,6 +332,62 @@ router.get('/verified',
           has_previous: page > 1,
           per_page: limit
         }
+      }
+    });
+  })
+);
+
+/**
+ * @route   GET /api/payment/:id
+ * @desc    Get payment details by ID
+ * @access  Private
+ */
+router.get('/:id', 
+  authenticateToken,
+  validateParams(paramSchema),
+  asyncHandler(async (req, res) => {
+    const { id } = req.params;
+
+    const { data: payment, error } = await supabase
+      .from('payments')
+      .select(`
+        *,
+        procurement_dump:procurement_id (
+          *,
+          allocation:allocation_id (
+            indent_number,
+            branch_information:branch_id (
+              branch_name,
+              branch_code,
+              zone
+            )
+          )
+        ),
+        created_user:created_by (
+          first_name,
+          last_name,
+          email
+        ),
+        verified_user:verified_by (
+          first_name,
+          last_name,
+          email
+        )
+      `)
+      .eq('id', id)
+      .single();
+
+    if (error || !payment) {
+      return res.status(404).json({
+        success: false,
+        message: 'Payment not found'
+      });
+    }
+
+    res.json({
+      success: true,
+      data: {
+        payment
       }
     });
   })

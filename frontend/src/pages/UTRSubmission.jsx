@@ -37,8 +37,8 @@ const UTRSubmission = () => {
         
         // If UTR already submitted, redirect to verified payments
         if (response.data.data.payment.utr_number) {
-          toast.info('UTR already submitted for this payment')
-          navigate('/payments/verified')
+        
+          navigate('/payment/verified')
           return
         }
       } catch (error) {
@@ -67,7 +67,7 @@ const UTRSubmission = () => {
       })
       
       toast.success('UTR submitted successfully!')
-      navigate('/payments/verified')
+      navigate('/payment/verified')
     } catch (error) {
       console.error('Error submitting UTR:', error)
       toast.error(error.response?.data?.message || 'Failed to submit UTR')

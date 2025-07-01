@@ -67,7 +67,10 @@ router.get('/search',
         )
       `)
       .eq('indent_number', indent_number)
+      .order('created_at', { ascending: false })
+      .limit(1)
       .single();
+      
 
     if (error || !procurement) {
       return res.status(404).json({
