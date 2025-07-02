@@ -137,7 +137,8 @@ router.post('/register', validateBody(registerSchema), asyncHandler(async (req, 
       password_hash,
       first_name,
       last_name,
-      role
+      role,
+      is_active: true
     })
     .select('id, email, first_name, last_name, role')
     .single();
