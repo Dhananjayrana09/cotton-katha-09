@@ -60,7 +60,11 @@ export const AuthProvider = ({ children }) => {
         throw new Error('No token received')
       }
     } catch (error) {
-      const message = error.response?.data?.data.message || 'Login failed'
+      // Improved error handling
+      let message = error.response?.data?.message || 'Login failed'
+      if (error.response?.data?.errors) {
+        message += '\n' + error.response.data.errors.map(e => e.message).join('\n')
+      }
       toast.error(message)
       return { success: false, message }
     } finally {
@@ -84,7 +88,11 @@ export const AuthProvider = ({ children }) => {
         throw new Error('No token received')
       }
     } catch (error) {
-      const message = error.response?.data?.data.message || 'Registration failed'
+      // Improved error handling
+      let message = error.response?.data?.message || 'Registration failed'
+      if (error.response?.data?.errors) {
+        message += '\n' + error.response.data.errors.map(e => e.message).join('\n')
+      }
       toast.error(message)
       return { success: false, message }
     } finally {
@@ -114,7 +122,11 @@ export const AuthProvider = ({ children }) => {
       toast.success('Profile updated successfully!')
       return { success: true }
     } catch (error) {
-      const message = error.response?.data?.data.message || 'Profile update failed'
+      // Improved error handling
+      let message = error.response?.data?.message || 'Profile update failed'
+      if (error.response?.data?.errors) {
+        message += '\n' + error.response.data.errors.map(e => e.message).join('\n')
+      }
       toast.error(message)
       return { success: false, message }
     }

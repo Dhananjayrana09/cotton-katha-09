@@ -17,6 +17,8 @@ import {
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 
+const N8N_CONTRACT_UPLOAD_WEBHOOK='https://primary-production-b52e.up.railway.app/webhook-test/contract-upload';
+
 const ContractUpload = () => {
   const location = useLocation()
   const navigate = useNavigate()
@@ -101,18 +103,21 @@ const ContractUpload = () => {
       formData.append('indent_number', indentNumber)
       formData.append('firm_name', procurement.firm_name)
 
-      const response = await api.post('/contract/upload', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
-      })
-
-      setUploadedContract(response.data.data.contract)
-      setUploaded(true)
-      toast.success('Contract uploaded successfully!')
+      const response = await fetch(N8N_CONTRACT_UPLOAD_WEBHOOK, {
+        method: 'POST',
+        body: formData
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to upload contract');
+      }
+      const responseData = await response.json();
+      setUploadedContract(responseData.data?.contract || responseData.data);
+      setUploaded(true);
+      toast.success('Contract uploaded successfully!');
     } catch (error) {
       console.error('Error uploading contract:', error)
-      toast.error(error.response?.data?.message || 'Failed to upload contract')
+      toast.error(error.message || 'Failed to upload contract')
     } finally {
       setUploading(false)
     }

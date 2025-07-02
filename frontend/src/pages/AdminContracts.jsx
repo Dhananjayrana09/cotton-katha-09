@@ -18,6 +18,8 @@ import {
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 
+const N8N_CONTRACT_APPROVE_SEND_WEBHOOK='https://primary-production-b52e.up.railway.app/webhook-test/contract-approve'; 
+
 const AdminContracts = () => {
   const { user, isAdmin } = useAuth()
   const [contracts, setContracts] = useState([])
@@ -53,18 +55,30 @@ const AdminContracts = () => {
   const approveAndSend = async (contractId) => {
     try {
       setApproving(prev => ({ ...prev, [contractId]: true }))
-      
-      const response = await api.post('/contract/approve-send', {
-        contract_id: contractId
+      const contract = contracts.find(c => c.id === contractId)
+      // Prepare payload for n8n webhook
+      const payload = {
+        contract_id: contractId,
+        indent_number: contract.indent_number,
+        firm_name: contract.firm_name,
+        file_url: contract.file_url,
+        branch_name: contract.branch_name, // if available
+        // Add more fields if needed by n8n
+      }
+      const response = await fetch(N8N_CONTRACT_APPROVE_SEND_WEBHOOK, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
       })
-      
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.message || 'Failed to approve contract')
+      }
       toast.success('Contract approved and sent successfully!')
-      
-      // Remove from pending list
       setContracts(prev => prev.filter(c => c.id !== contractId))
     } catch (error) {
       console.error('Error approving contract:', error)
-      toast.error(error.response?.data?.message || 'Failed to approve contract')
+      toast.error(error.message || 'Failed to approve contract')
     } finally {
       setApproving(prev => ({ ...prev, [contractId]: false }))
     }
