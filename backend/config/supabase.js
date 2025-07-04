@@ -10,14 +10,14 @@ if (!process.env.SUPABASE_URL) {
   throw new Error('Missing SUPABASE_URL environment variable');
 }
 
-if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+if (!process.env.SUPABAS_ANON_KEY) {
   throw new Error('Missing SUPABASE_SERVICE_ROLE_KEY environment variable');
 }
 
 // Create Supabase client with service role key for server-side operations
 const supabase = createClient(
   process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY,
+  process.env.SUPABASE_ANON_KEY,
   {
     auth: {
       autoRefreshToken: false,
